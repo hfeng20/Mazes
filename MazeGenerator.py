@@ -1,7 +1,13 @@
 class Maze:
     def __init__(dimension):
-        self.graph = []
-        
+        self.size = dimension
+        self.grid = []
+        for i in range(dimension):
+            self.grid.append[[Cell([]) * dimension]]
+    def generate(seed):
+        startCellIndex = seed % self.size
+
+    def generateDFS()
 
 
 class Cell:
