@@ -17,45 +17,80 @@ class Maze:
     def generate(self,seed,randomizeEndPoints):
 
         if(randomizeEndPoints):
-            start = random.randint(0,self.size * 4 - 1)
-            end = random.randint(0,self.size * 4 - 1)
-            while(start == end):
-                end = random.randint(0,self.size * 4 - 1)
+            start = random.randint(0,self.size - 1)
+            end = random.randint(0,self.size - 1)
+            if(random.randint(0,1) == 0):
+                startCol = 0
+                startRow = start
+                endCol = self.size - 1
+                endRow = end
+            else:
+                startCol = start
+                startRow = 0
+                endCol = end
+                endRow = self.size - 1
+            startCell = self.grid[startRow][startCol]
+            endCell = self.grid[endRow][endCol]
+        else:
+            startCell = self.grid[0][0]
+            endCell = self.grid[self.size - 1][self.size - 1]
+
+            
 
         startCellIndex = seed % self.size
         self.generateDFS(self.grid, self.grid[0][startCellIndex])
         lines = []
-
+        print("start: " + (str)(startCell.row) + " " + (str)(startCell.col))
+        print("end: " + (str)(endCell.row) + " " + (str)(endCell.col))
         for i in range(0, len(self.grid)):
 
             for t in range(0, len(self.grid)):
-
+                startTop = False
+                startLeft = False
+                endBottom = False
+                endRight = False
                 cell = self.grid[i][t]
+                if cell == startCell:
+                    if cell.row == 0:
+                        startTop = True
+                    else:
+                        startLeft = True
+                elif cell == endCell:
+                    if cell.row == self.size - 1:
+                        endBottom = True
+                    else:
+                        endRight = True
+
 
                 if cell.col + 1 == self.size:
-                    if not cell.row + 1 == self.size:
+                    if not endRight:
                         lines.append([cell.topRight, cell.bottomRight])
+                    else:
+                        coords = [cell.topRight[0] + 10, (cell.topRight[1] + cell.bottomRight[1])/2]
+                        plt.plot(plt.Circle((cell.topRight[0] + 10, (cell.topRight[1] + cell.bottomRight[1])/2)))
 
                 elif not self.grid[cell.row][cell.col + 1] in cell.connections:
                     coords = [cell.topRight, cell.bottomRight]
                     lines.append(coords)
 
                 if cell.col == 0:
-                    lines.append([cell.topLeft, cell.bottomLeft])
+                    if not startLeft:
+                        lines.append([cell.topLeft, cell.bottomLeft])
 
                 elif not self.grid[cell.row][cell.col - 1] in cell.connections:
                     coords = [cell.topLeft, cell.bottomLeft]
                     lines.append(coords)
 
                 if cell.row + 1 == self.size:
-                    lines.append([cell.bottomLeft, cell.bottomRight])
+                    if not endBottom:
+                        lines.append([cell.bottomLeft, cell.bottomRight])
 
                 elif not self.grid[cell.row + 1][cell.col] in cell.connections:
                     coords = [cell.bottomLeft, cell.bottomRight]
                     lines.append(coords)
 
                 if cell.row == 0:
-                    if not cell.col == 0:
+                    if not startTop:
                         lines.append([cell.topRight, cell.topLeft])
 
                 elif not self.grid[cell.row - 1][cell.col] in cell.connections:
@@ -111,5 +146,22 @@ class Cell:
         self.bottomLeft = [col * 10, (gridSize - row - 1) * 10]
         self.bottomRight = [(col + 1) * 10, (gridSize - row - 1) * 10]
 
-maze = Maze(40)
-maze.generate(3, True)
+
+
+print("Input \"generate\" to generate a new maze. Input \"solution\" to see the solution path. Input nothing to exit.")
+action = input("-")
+curMaze = None
+while action != "":
+    if action == "generate":
+        curMaze = Maze((int)(input("Difficulty (1-40): ")))
+        randomize = input("Randomize end points? If n, start will be top left and end will be bottom right. (y or n): ")
+        if randomize == "y":
+            randomize = True
+        else:
+            randomize = False
+        curMaze.generate(100, randomize)
+    if action == "solution":
+        break
+    if action == "":
+        break
+    action = input("-")
